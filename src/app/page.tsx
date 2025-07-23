@@ -1,12 +1,25 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import dynamic from 'next/dynamic'
 import { Container } from '@/components/layout/Container'
 import { HeroSection } from '@/components/features/HeroSection'
 import { CategoryFilter } from '@/components/features/CategoryFilter'
-import { CourseGrid } from '@/components/features/CourseGrid'
+import { CourseCardSkeleton } from '@/components/features/CourseCardSkeleton'
 import { getCourses, getCategories, getCoursesByCategory } from '@/lib/courseData'
 import { Course, Category } from '@/types/course'
+
+// Dynamic import for CourseGrid with loading fallback
+const CourseGrid = dynamic(() => import('@/components/features/CourseGrid').then(mod => ({ default: mod.CourseGrid })), {
+  loading: () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <CourseCardSkeleton key={i} />
+      ))}
+    </div>
+  ),
+  ssr: false
+})
 
 export default function HomePage() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -77,7 +90,15 @@ export default function HomePage() {
             />
           </div>
 
-          <CourseGrid courses={courses} loading={loading} />
+          <Suspense fallback={
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <CourseCardSkeleton key={i} />
+              ))}
+            </div>
+          }>
+            <CourseGrid courses={courses} loading={loading} />
+          </Suspense>
         </Container>
       </section>
 

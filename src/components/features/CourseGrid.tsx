@@ -35,7 +35,7 @@ export const CourseGrid: React.FC<CourseGridProps> = ({ courses, loading = false
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {courses.map((course) => (
+      {courses.map((course, index) => (
         <CourseCard
           key={course.id}
           id={course.id}
@@ -47,6 +47,7 @@ export const CourseGrid: React.FC<CourseGridProps> = ({ courses, loading = false
           totalDuration={course.totalDuration}
           instructor={course.instructor}
           price={course.price}
+          priority={index < 3} // First 3 cards are above the fold
         />
       ))}
     </div>

@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { Video } from '@/types/course'
+import { YouTubeFacade } from './YouTubeFacade'
 
 interface VideoPlayerProps {
   video: Video
@@ -10,16 +11,10 @@ interface VideoPlayerProps {
 export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video }) => {
   return (
     <div className="bg-black rounded-xl overflow-hidden shadow-2xl">
-      <div className="relative pb-[56.25%]">
-        <iframe
-          className="absolute inset-0 w-full h-full"
-          src={`https://www.youtube.com/embed/${video.youtubeId}`}
-          title={video.title}
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
+      <YouTubeFacade 
+        videoId={video.youtubeId}
+        title={video.title}
+      />
       
       <div className="p-6 bg-white">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">{video.title}</h2>
