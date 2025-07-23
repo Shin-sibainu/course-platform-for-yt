@@ -1,13 +1,40 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useParams } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import { Container } from '@/components/layout/Container'
 import { CourseHeader } from '@/components/features/CourseHeader'
-import { VideoPlayer } from '@/components/features/VideoPlayer'
-import { Curriculum } from '@/components/features/Curriculum'
 import { getCourseById, generateFullCourseVideos } from '@/lib/courseData'
 import { Course, Video } from '@/types/course'
+
+// Dynamic imports for heavy components
+const VideoPlayer = dynamic(() => import('@/components/features/VideoPlayer').then(mod => ({ default: mod.VideoPlayer })), {
+  loading: () => (
+    <div className="bg-black rounded-xl overflow-hidden shadow-2xl animate-pulse">
+      <div className="relative pb-[56.25%] bg-gray-300"></div>
+      <div className="p-6 bg-white">
+        <div className="h-8 bg-gray-300 rounded mb-2"></div>
+        <div className="h-16 bg-gray-300 rounded"></div>
+      </div>
+    </div>
+  ),
+  ssr: false
+})
+
+const Curriculum = dynamic(() => import('@/components/features/Curriculum').then(mod => ({ default: mod.Curriculum })), {
+  loading: () => (
+    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 animate-pulse">
+      <div className="h-6 bg-gray-300 rounded mb-4"></div>
+      <div className="space-y-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="h-12 bg-gray-300 rounded"></div>
+        ))}
+      </div>
+    </div>
+  ),
+  ssr: false
+})
 
 export default function CourseDetailPage() {
   const params = useParams()
@@ -94,7 +121,19 @@ export default function CourseDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* 左側: 動画プレーヤー */}
             <div className="lg:col-span-2">
-              {currentVideo && <VideoPlayer video={currentVideo} />}
+              {currentVideo && (
+                <Suspense fallback={
+                  <div className="bg-black rounded-xl overflow-hidden shadow-2xl animate-pulse">
+                    <div className="relative pb-[56.25%] bg-gray-300"></div>
+                    <div className="p-6 bg-white">
+                      <div className="h-8 bg-gray-300 rounded mb-2"></div>
+                      <div className="h-16 bg-gray-300 rounded"></div>
+                    </div>
+                  </div>
+                }>
+                  <VideoPlayer video={currentVideo} />
+                </Suspense>
+              )}
               
               {/* 次の動画の提案 */}
               {currentVideo && course.sections.map(section => {
@@ -121,12 +160,23 @@ export default function CourseDetailPage() {
             {/* 右側: カリキュラム */}
             <div className="lg:col-span-1">
               <div className="sticky top-24">
-                <Curriculum
-                  sections={course.sections}
-                  currentVideo={currentVideo}
-                  onVideoSelect={handleVideoSelect}
-                  completedVideos={completedVideos}
-                />
+                <Suspense fallback={
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 animate-pulse">
+                    <div className="h-6 bg-gray-300 rounded mb-4"></div>
+                    <div className="space-y-4">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="h-12 bg-gray-300 rounded"></div>
+                      ))}
+                    </div>
+                  </div>
+                }>
+                  <Curriculum
+                    sections={course.sections}
+                    currentVideo={currentVideo}
+                    onVideoSelect={handleVideoSelect}
+                    completedVideos={completedVideos}
+                  />
+                </Suspense>
               </div>
             </div>
           </div>

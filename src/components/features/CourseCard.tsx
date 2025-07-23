@@ -16,6 +16,7 @@ interface CourseCardProps {
   instructor: string
   price: string
   progress?: number
+  priority?: boolean
 }
 
 export const CourseCard: React.FC<CourseCardProps> = ({
@@ -29,6 +30,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   instructor,
   price,
   progress = 0,
+  priority = false,
 }) => {
   return (
     <Link href={`/courses/${id}`}>
@@ -40,6 +42,9 @@ export const CourseCard: React.FC<CourseCardProps> = ({
             alt={title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={priority}
+            loading={priority ? "eager" : "lazy"}
           />
           <Badge variant="primary" className="absolute top-4 left-4 z-20">
             {category}
